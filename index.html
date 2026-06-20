@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jono Cascia Date</title>
+<style>
+  :root{
+    --bg-1:#16181d;
+    --bg-0:#0a0b0e;
+    --flap-top-a:#26272d;
+    --flap-top-b:#1d1e23;
+    --flap-bot-a:#1a1b20;
+    --flap-bot-b:#131419;
+    --char:#f3e9d2;            /* warm Solari off-white */
+    --label:#7b818c;
+    --amber:#e0a23c;           /* the single accent */
+    --fw:clamp(34px, 9vw, 60px);
+    --fh:clamp(54px, 13vw, 92px);
+    --fs:calc(var(--fh) * 0.64);
+    --dur:0.62s;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(20px,5vh,46px);
+    padding:40px 18px;
+    background:radial-gradient(140% 120% at 50% 35%, var(--bg-1) 0%, var(--bg-0) 70%);
+    color:var(--char);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header{text-align:center;}
+  .eyebrow{
+    font-size:clamp(10px,2.4vw,13px);
+    letter-spacing:0.42em;
+    text-transform:uppercase;
+    color:var(--label);
+    padding-left:0.42em; /* compensate trailing tracking */
+  }
+  .eyebrow::after{
+    content:"";
+    display:block;
+    width:46px;
+    height:2px;
+    margin:11px auto 0;
+    background:var(--amber);
+    box-shadow:0 0 10px rgba(224,162,60,.5);
+  }
+
+  /* ---- The board ---- */
+  .board{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:center;
+    gap:clamp(14px,3vw,30px);
+    padding:clamp(16px,3vw,28px);
+    border-radius:12px;
+    background:linear-gradient(#1a1c21,#0f1014);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.04),
+      0 24px 60px -20px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .group{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:11px;
+  }
+  .digits{display:flex; gap:5px;}
+  .group .label{
+    font-size:clamp(9px,2vw,11px);
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--label);
+    padding-left:0.28em;
+  }
+
+  /* ---- A single split-flap module ---- */
+  .flap{
+    position:relative;
+    width:var(--fw);
+    height:var(--fh);
+    perspective:260px;
+    font-family:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
+    font-weight:600;
+    filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));
+  }
+  /* little hinge pins at the seam */
+  .flap::before,.flap::after{
+    content:"";
+    position:absolute;
+    top:calc(50% - 4px);
+    width:4px;
+    height:8px;
+    background:#06070a;
+    border-radius:1px;
+    z-index:5;
+  }
+  .flap::before{left:-2px;}
+  .flap::after{right:-2px;}
+
+  .half{
+    position:absolute;
+    left:0;
+    width:100%;
+    height:50%;
+    overflow:hidden;
+    backface-visibility:hidden;
+  }
+  .upper,.flip-upper{
+    top:0;
+    border-radius:7px 7px 0 0;
+    background:linear-gradient(var(--flap-top-a),var(--flap-top-b));
+    border-bottom:1px solid rgba(0,0,0,.55);
+  }
+  .lower,.flip-lower{
+    bottom:0;
+    border-radius:0 0 7px 7px;
+    background:linear-gradient(var(--flap-bot-a),var(--flap-bot-b));
+    border-top:1px solid rgba(255,255,255,.035);
+  }
+
+  .char{
+    position:absolute;
+    left:0;
+    width:100%;
+    height:var(--fh);
+    line-height:var(--fh);
+    text-align:center;
+    font-size:var(--fs);
+    color:var(--char);
+    text-shadow:0 1px 2px rgba(0,0,0,.6);
+  }
+  .upper .char,.flip-upper .char{top:0;}
+  .lower .char,.flip-lower .char{bottom:0;}
+
+  .upper,.lower{z-index:1;}
+  .flip-upper{z-index:2; transform-origin:bottom center; transform:rotateX(0deg);}
+  .flip-lower{z-index:2; transform-origin:top center;    transform:rotateX(90deg);}
+
+  .flap.flipping .flip-upper{animation:flipTop var(--dur) ease-in forwards;}
+  .flap.flipping .flip-lower{animation:flipBottom var(--dur) ease-out forwards;}
+
+  @keyframes flipTop{
+    0%{transform:rotateX(0deg);}
+    50%,100%{transform:rotateX(-90deg);}
+  }
+  @keyframes flipBottom{
+    0%,50%{transform:rotateX(90deg);}
+    100%{transform:rotateX(0deg);}
+  }
+
+  footer{
+    font-size:clamp(10px,2.2vw,12px);
+    letter-spacing:0.34em;
+    text-transform:uppercase;
+    color:var(--label);
+    padding-left:0.34em;
+  }
+  footer b{color:var(--char); font-weight:600;}
+
+  @media (prefers-reduced-motion: reduce){
+    .flap.flipping .flip-upper,
+    .flap.flipping .flip-lower{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="eyebrow">Time Since</div>
+  </header>
+
+  <main class="board" id="board" role="timer" aria-live="off"></main>
+
+  <footer>Since <b>25 Jan 2026, 5:50 pm</b></footer>
+
+<script>
+(() => {
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const START = new Date(2026, 0, 25, 17, 50, 0, 0);
+
+  const GROUPS = [
+    { key:'years',   label:'Years'   },
+    { key:'months',  label:'Months'  },
+    { key:'days',    label:'Days'    },
+    { key:'hours',   label:'Hours'   },
+    { key:'minutes', label:'Minutes' },
+    { key:'seconds', label:'Seconds' },
+  ];
+
+  const board = document.getElementById('board');
+  const flaps = {}; // key -> [flapEl, flapEl]
+
+  // Build the DOM
+  for (const g of GROUPS) {
+    const group = document.createElement('div');
+    group.className = 'group';
+
+    const digits = document.createElement('div');
+    digits.className = 'digits';
+    digits.setAttribute('aria-label', g.label);
+
+    flaps[g.key] = [];
+    for (let i = 0; i < 2; i++) {
+      const flap = document.createElement('div');
+      flap.className = 'flap';
+      flap.innerHTML = `
+        <div class="half upper"><span class="char"></span></div>
+        <div class="half lower"><span class="char"></span></div>
+        <div class="half flip-upper"><span class="char"></span></div>
+        <div class="half flip-lower"><span class="char"></span></div>`;
+      digits.appendChild(flap);
+      flaps[g.key].push(flap);
+    }
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = g.label;
+
+    group.appendChild(digits);
+    group.appendChild(label);
+    board.appendChild(group);
+  }
+
+  // Update one flap module to show newChar
+  function setFlap(flap, newChar, animate) {
+    const cur = flap.dataset.char ?? '';
+    const upper  = flap.querySelector('.upper .char');
+    const lower  = flap.querySelector('.lower .char');
+    const fUpper = flap.querySelector('.flip-upper .char');
+    const fLower = flap.querySelector('.flip-lower .char');
+
+    if (!animate || REDUCED || cur === newChar) {
+      upper.textContent = lower.textContent = fUpper.textContent = fLower.textContent = newChar;
+      flap.dataset.char = newChar;
+      return;
+    }
+
+    // Settled-state behind the moving flaps
+    upper.textContent  = newChar; // revealed as the old top falls away
+    lower.textContent  = cur;     // old bottom, visible until covered
+    fUpper.textContent = cur;     // the top flap that drops (old char)
+    fLower.textContent = newChar; // the bottom flap that rises (new char)
+
+    flap.classList.remove('flipping');
+    void flap.offsetWidth;        // restart the animation
+    flap.classList.add('flipping');
+
+    const onEnd = (e) => {
+      if (e.animationName !== 'flipBottom') return;
+      // Sync every layer to the new char, then drop the animation cleanly
+      upper.textContent = lower.textContent = fUpper.textContent = fLower.textContent = newChar;
+      flap.dataset.char = newChar;
+      flap.classList.remove('flipping');
+      flap.removeEventListener('animationend', onEnd);
+    };
+    flap.addEventListener('animationend', onEnd);
+  }
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  // Calendar-aware elapsed time, with borrowing
+  function elapsed() {
+    const n = new Date();
+    let y  = n.getFullYear() - START.getFullYear();
+    let mo = n.getMonth()    - START.getMonth();
+    let d  = n.getDate()     - START.getDate();
+    let h  = n.getHours()    - START.getHours();
+    let mi = n.getMinutes()  - START.getMinutes();
+    let se = n.getSeconds()  - START.getSeconds();
+
+    if (se < 0) { se += 60; mi--; }
+    if (mi < 0) { mi += 60; h--; }
+    if (h  < 0) { h  += 24; d--; }
+    if (d  < 0) { d  += new Date(n.getFullYear(), n.getMonth(), 0).getDate(); mo--; }
+    if (mo < 0) { mo += 12; y--; }
+
+    return { years:y, months:mo, days:d, hours:h, minutes:mi, seconds:se };
+  }
+
+  function render(animate) {
+    const v = elapsed();
+    for (const g of GROUPS) {
+      const str = pad2(v[g.key]);
+      const pair = flaps[g.key];
+      setFlap(pair[0], str[0], animate);
+      setFlap(pair[1], str[1], animate);
+    }
+  }
+
+  // Initial paint without animation, then tick on each second boundary
+  render(false);
+  const toNextSecond = 1000 - (Date.now() % 1000);
+  setTimeout(() => {
+    render(true);
+    setInterval(() => render(true), 1000);
+  }, toNextSecond);
+})();
+</script>
+</body>
+</html>
